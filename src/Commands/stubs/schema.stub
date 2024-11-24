@@ -1,0 +1,18 @@
+<?php
+namespace Mimachh\Seo\Schemas;
+
+
+class DummyClass extends SchemaType
+{
+    public function __construct()
+    {
+        $this->setAttribute('@type', 'DummyClass');
+    }
+
+   public static function create(): self
+    {
+        return new self;
+    }
+    
+    // Ajoutez ici des méthodes spécifiques pour DummyClass.
+}
