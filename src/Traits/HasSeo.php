@@ -17,21 +17,36 @@ trait HasSeo
         $this->seo()->updateOrCreate([], $data);
     }
 
-    public static function bootHasSeo()
-    {
-        static::saving(function ($model) {
-            if (request()->has('seo_title') || request()->has('seo_description')) {
-                $data = [
-                    'seo_title' => request('seo_title'),
-                    'seo_description' => request('seo_description'),
-                ];
+public static function bootHasSeo()
+{
+    // Validation avant sauvegarde
+    static::saving(function ($model) {
+        if (request()->has('seo_title') || request()->has('seo_description')) {
+            $data = [
+                'seo_title' => request('seo_title'),
+                'seo_description' => request('seo_description'),
+            ];
 
-                self::validateSeoData($data);
+            // Valider les données SEO, lancer une exception en cas d'échec
+            self::validateSeoData($data);
 
-                $model->updateSeo($data);
-            }
-        });
-    }
+            // Stocker les données SEO sur le modèle pour une utilisation après sauvegarde
+            $model->seo_data = $data;
+        }
+    });
+
+    // Création ou mise à jour après sauvegarde
+    static::saved(function ($model) {
+        if (isset($model->seo_data)) {
+            // Mettre à jour ou créer l'entrée SEO
+            $model->updateSeo($model->seo_data);
+
+            // Nettoyer la propriété temporaire
+            unset($model->seo_data);
+        }
+    });
+}
+
 
 
     public static function validateSeoData($data)
