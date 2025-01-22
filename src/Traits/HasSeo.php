@@ -5,8 +5,10 @@ namespace Mimachh\Seo\Traits;
 
 use Mimachh\Seo\Http\Models\Seo;
 
+
 trait HasSeo
 {
+    private array $seoTempData = [];
     public function seo()
     {
         return $this->morphOne(Seo::class, 'seoable');
@@ -14,39 +16,32 @@ trait HasSeo
 
     public function updateSeo(array $data)
     {
-        $this->seo()->updateOrCreate([], $data);
+        $this->seo()->updateOrCreate(
+            ['seoable_id' => $this->id, 'seoable_type' => get_class($this)],
+            $data
+        );
     }
 
-public static function bootHasSeo()
-{
-    // Validation avant sauvegarde
-    static::saving(function ($model) {
-        if (request()->has('seo_title') || request()->has('seo_description')) {
-            $data = [
-                'seo_title' => request('seo_title'),
-                'seo_description' => request('seo_description'),
-            ];
+    public static function bootHasSeo()
+    {
+        static::saving(function ($model) {
+            if (request()->has('seo_title') || request()->has('seo_description')) {
+                $data = [
+                    'seo_title' => request('seo_title'),
+                    'seo_description' => request('seo_description'),
+                ];
+                self::validateSeoData($data);
+                $model->seoTempData = $data;
+            }
+        });
 
-            // Valider les données SEO, lancer une exception en cas d'échec
-            self::validateSeoData($data);
-
-            // Stocker les données SEO sur le modèle pour une utilisation après sauvegarde
-             $model->setAttribute('seo_data', $data);
-        }
-    });
-
-    static::saved(function ($model) {
-        if ($model->getAttribute('seo_data')) {
-            // Mettre à jour ou créer l'entrée SEO
-            $model->updateSeo($model->getAttribute('seo_data'));
-
-            // Nettoyer la propriété temporaire
-            $model->setAttribute('seo_data', null);
-        }
-    });
-}
-
-
+        static::saved(function ($model) {
+            if (isset($model->seoTempData)) {
+                $model->updateSeo($model->seoTempData);
+                $model->seoTempData = [];
+            }
+        });
+    }
 
     public static function validateSeoData($data)
     {
