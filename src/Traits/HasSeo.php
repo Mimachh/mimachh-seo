@@ -19,7 +19,7 @@ trait HasSeo
 
     public static function bootHasSeo()
     {
-        static::saved(function ($model) {
+        static::saving(function ($model) {
             if (request()->has('seo_title') || request()->has('seo_description')) {
                 $data = [
                     'seo_title' => request('seo_title'),
