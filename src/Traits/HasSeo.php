@@ -31,18 +31,17 @@ public static function bootHasSeo()
             self::validateSeoData($data);
 
             // Stocker les données SEO sur le modèle pour une utilisation après sauvegarde
-            $model->seo_data = $data;
+             $model->setAttribute('seo_data', $data);
         }
     });
 
-    // Création ou mise à jour après sauvegarde
     static::saved(function ($model) {
-        if (isset($model->seo_data)) {
+        if ($model->getAttribute('seo_data')) {
             // Mettre à jour ou créer l'entrée SEO
-            $model->updateSeo($model->seo_data);
+            $model->updateSeo($model->getAttribute('seo_data'));
 
             // Nettoyer la propriété temporaire
-            unset($model->seo_data);
+            $model->setAttribute('seo_data', null);
         }
     });
 }
