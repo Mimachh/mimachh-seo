@@ -1,6 +1,6 @@
 {
     "name": "mimachh/seo",
-    "version": "0.0.3",
+    "version": "0.0.5",
     "description": "Generate and use easily the seo in you Laravel app",
     "type": "library",
     "autoload": {
