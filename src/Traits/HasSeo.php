@@ -54,8 +54,8 @@ trait HasSeo
         ];
 
         return validator($data, [
-            'seo_title' => 'nullable|string|max:60|min:50',
-            'seo_description' => 'nullable|string|min:50|max:160',
+            'seo_title' => 'nullable|string|max:60',
+            'seo_description' => 'nullable|string|max:160',
         ], $messages)->validate();
     }
 }
